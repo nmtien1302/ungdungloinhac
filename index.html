@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lời Nhắc</title>
+  <meta name="description" content="Lời Nhắc — nhắc việc và quản lý thời gian cá nhân, nhập liệu bằng ngôn ngữ tự nhiên.">
+  <meta name="theme-color" content="#2b63ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100,400..900;1,100,400..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="bg" class="bg" aria-hidden="true"></div>
+
+  <main id="app" class="app">
+
+    <!-- Header -->
+    <header class="top">
+      <div class="top-row">
+        <h1 id="pageTitle" class="title">Hôm nay</h1>
+        <div class="top-actions">
+          <button class="icon-btn" id="btnSearch" aria-label="Tìm kiếm" title="Tìm kiếm">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          </button>
+          <button class="icon-btn" id="btnSettings" aria-label="Cài đặt" title="Cài đặt">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+        </div>
+      </div>
+      <p id="pageSub" class="subtitle"></p>
+
+      <div class="seg" role="tablist" aria-label="Chế độ xem">
+        <button class="seg-btn is-active" role="tab" data-view="list" aria-selected="true">Danh sách</button>
+        <button class="seg-btn" role="tab" data-view="calendar" aria-selected="false">Lịch</button>
+        <span class="seg-thumb" aria-hidden="true"></span>
+      </div>
+    </header>
+
+    <!-- Views -->
+    <section class="views" id="views">
+      <!-- List view -->
+      <div class="view view-list is-active" id="viewList" data-view="list">
+
+        <div class="brief" id="brief" hidden></div>
+
+        <div class="chips" id="chips">
+          <button class="chip is-active" data-list="today">Hôm nay</button>
+          <button class="chip" data-list="upcoming">Sắp tới</button>
+          <button class="chip" data-list="all">Tất cả</button>
+          <button class="chip" data-list="done">Đã xong</button>
+        </div>
+
+        <div class="search-row" id="searchRow" hidden>
+          <input type="search" id="searchInput" placeholder="Tìm việc, địa điểm, ghi chú…" autocomplete="off">
+        </div>
+
+        <div id="taskGroups" class="task-groups"></div>
+      </div>
+
+      <!-- Calendar view -->
+      <div class="view view-cal" id="viewCal" data-view="calendar">
+        <div class="cal-head">
+          <button class="icon-btn" id="calPrev" aria-label="Tuần trước"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="cal-month" id="calMonth">Tháng</button>
+          <button class="icon-btn" id="calNext" aria-label="Tuần sau"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="week" id="week"></div>
+
+        <div class="untimed" id="untimed"></div>
+
+        <div class="timeline" id="timeline">
+          <div class="hours" id="hours"></div>
+          <div class="slots" id="slots"></div>
+          <div class="now-line" id="nowLine" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick add bar -->
+    <div class="quick" id="quick">
+      <button class="quick-mic" id="btnVoice" aria-label="Nói để tạo việc" title="Nói để tạo việc">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+      <input id="quickInput" type="text" placeholder="Thêm việc: “Họp marketing thứ 6 lúc 9h sáng tại phòng 201”" autocomplete="off" enterkeyhint="done">
+      <button class="quick-add" id="btnQuickAdd" aria-label="Thêm">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="quick-preview" id="quickPreview" hidden></div>
+
+  </main>
+
+  <!-- Task detail sheet -->
+  <div class="sheet" id="sheetTask" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTaskTitle">
+      <div class="sheet-grab"></div>
+      <div class="sheet-body">
+        <div class="field">
+          <input id="tTitle" class="input-title" type="text" placeholder="Tên việc">
+        </div>
+        <div class="field-row">
+          <label class="field half">
+            <span>Ngày</span>
+            <input id="tDate" type="date">
+          </label>
+          <label class="field half">
+            <span>Giờ</span>
+            <input id="tTime" type="time">
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field half">
+            <span>Kéo dài (phút)</span>
+            <input id="tDur" type="number" min="5" step="5" placeholder="60">
+          </label>
+          <label class="field half">
+            <span>Loại</span>
+            <select id="tKind">
+              <option value="todo">Việc cần làm</option>
+              <option value="event">Sự kiện / cuộc họp</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span>Địa điểm</span>
+          <input id="tPlace" type="text" placeholder="Phòng 201, quán cà phê…">
+        </label>
+        <label class="field">
+          <span>Ghi chú</span>
+          <textarea id="tNote" rows="3" placeholder="Link họp, mã vận đơn, số điện thoại… sẽ tự thành nút bấm"></textarea>
+        </label>
+        <div class="actions-row" id="tActions"></div>
+
+        <div class="subtasks">
+          <div class="subtasks-head">
+            <span>Các bước</span>
+            <button class="text-btn" id="btnBreakdown">Chia nhỏ việc này</button>
+          </div>
+          <ul id="tSubs" class="sub-list"></ul>
+          <form id="subForm" class="sub-form">
+            <input id="subInput" type="text" placeholder="Thêm bước…" autocomplete="off">
+            <button type="submit" class="text-btn">Thêm</button>
+          </form>
+        </div>
+
+        <div class="sheet-foot">
+          <button class="btn danger" id="btnDelete">Xoá</button>
+          <button class="btn" id="btnDone">Hoàn thành</button>
+          <button class="btn primary" id="btnSave">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snooze sheet -->
+  <div class="sheet" id="sheetSnooze" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel small" role="dialog" aria-modal="true">
+      <div class="sheet-grab"></div>
+      <div class="sheet-body">
+        <h2 class="sheet-title">Nhắc lại khi nào?</h2>
+        <div class="snooze-grid">
+          <button class="btn" data-snooze="15m">Sau 15 phút</button>
+          <button class="btn" data-snooze="1h">Sau 1 giờ</button>
+          <button class="btn" data-snooze="tonight">Tối nay</button>
+          <button class="btn" data-snooze="tomorrow">Sáng mai</button>
+          <button class="btn" data-snooze="nextweek">Tuần sau</button>
+          <button class="btn" data-snooze="pick">Chọn ngày…</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings sheet -->
+  <div class="sheet" id="sheetSettings" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true">
+      <div class="sheet-grab"></div>
+      <div class="sheet-body">
+        <h2 class="sheet-title">Cài đặt</h2>
+
+        <div class="set-group">
+          <div class="set-label">Giao diện</div>
+          <div class="seg seg-3" id="themeSeg">
+            <button class="seg-btn" data-theme="light">Sáng</button>
+            <button class="seg-btn" data-theme="dark">Tối</button>
+            <button class="seg-btn" data-theme="system">Theo máy</button>
+          </div>
+        </div>
+
+        <div class="set-group">
+          <div class="set-label">Màu chủ đạo</div>
+          <div class="swatches" id="swatches">
+            <button class="swatch" data-color="#2b63ff" style="--c:#2b63ff" aria-label="Xanh dương"></button>
+            <button class="swatch" data-color="#0f9d7a" style="--c:#0f9d7a" aria-label="Xanh lục"></button>
+            <button class="swatch" data-color="#e2572a" style="--c:#e2572a" aria-label="Cam"></button>
+            <button class="swatch" data-color="#c5338a" style="--c:#c5338a" aria-label="Hồng"></button>
+            <button class="swatch" data-color="#6d4de6" style="--c:#6d4de6" aria-label="Tím"></button>
+            <button class="swatch" data-color="#1f2328" style="--c:#1f2328" aria-label="Đen"></button>
+            <label class="swatch custom" title="Màu tuỳ chọn">
+              <input type="color" id="colorInput" value="#2b63ff">
+            </label>
+          </div>
+        </div>
+
+        <div class="set-group">
+          <div class="set-label">Hình nền</div>
+          <div class="bg-row">
+            <label class="btn">
+              Chọn ảnh từ máy
+              <input type="file" id="bgFile" accept="image/*" hidden>
+            </label>
+            <button class="btn" id="bgClear">Bỏ ảnh</button>
+          </div>
+          <label class="range">
+            <span>Độ mờ nền <b id="bgDimVal">60%</b></span>
+            <input type="range" id="bgDim" min="0" max="95" step="5" value="60">
+          </label>
+          <label class="range">
+            <span>Làm mờ ảnh <b id="bgBlurVal">0px</b></span>
+            <input type="range" id="bgBlur" min="0" max="30" step="2" value="0">
+          </label>
+        </div>
+
+        <div class="set-group">
+          <div class="set-label">Tóm tắt hằng ngày</div>
+          <label class="switch-row">
+            <span>Tóm tắt buổi sáng lúc <input type="time" id="morningTime" value="07:30" class="inline-time"></span>
+            <input type="checkbox" id="morningOn" checked>
+          </label>
+          <label class="switch-row">
+            <span>Xem lại buổi tối lúc <input type="time" id="eveningTime" value="21:00" class="inline-time"></span>
+            <input type="checkbox" id="eveningOn" checked>
+          </label>
+        </div>
+
+        <div class="set-group">
+          <div class="set-label">Thông báo</div>
+          <button class="btn" id="btnNotify">Bật thông báo trên thiết bị này</button>
+          <p class="hint" id="notifyHint">Thông báo hoạt động khi ứng dụng đang mở hoặc đã cài lên màn hình chính.</p>
+        </div>
+
+        <div class="set-group">
+          <div class="set-label">Dữ liệu</div>
+          <div class="bg-row">
+            <button class="btn" id="btnExport">Xuất file</button>
+            <label class="btn">Nhập file<input type="file" id="importFile" accept="application/json" hidden></label>
+            <button class="btn danger" id="btnWipe">Xoá hết</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/nlp.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

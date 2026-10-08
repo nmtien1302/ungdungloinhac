@@ -1,0 +1,11 @@
+{
+  "name": "Lời Nhắc",
+  "short_name": "Lời Nhắc",
+  "description": "Nhắc việc và quản lý thời gian cá nhân — gõ một câu là xong.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f7",
+  "theme_color": "#2b63ff",
+  "lang": "vi",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
